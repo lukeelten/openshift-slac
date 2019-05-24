@@ -16,6 +16,13 @@ resource "aws_instance" "app-node" {
     volume_size = 50
   }
 
+  ebs_block_device {
+    delete_on_termination = true
+    volume_type ="gp2"
+    volume_size = 500
+    device_name = "/dev/sdb"
+  }
+
   lifecycle {
     create_before_destroy = true
   }
