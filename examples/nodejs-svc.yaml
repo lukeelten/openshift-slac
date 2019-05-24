@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftWebConsole
+  creationTimestamp: 2019-05-24T15:31:24Z
+  labels:
+    app: nodejs-ex
+  name: nodejs-ex
+  namespace: test
+  resourceVersion: "8143"
+  selfLink: /api/v1/namespaces/test/services/nodejs-ex
+  uid: fd2c160c-7e38-11e9-9a2d-02f10ac2fca6
+spec:
+  clusterIP: 172.30.110.84
+  ports:
+  - name: 8080-tcp
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    deploymentconfig: nodejs-ex
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
