@@ -1,0 +1,93 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+glusterfs
+
+[OSEv3:vars]
+ansible_user=centos
+ansible_become=true
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+deployment_type=origin
+openshift_deployment_type=origin
+
+openshift_clock_enable=true
+openshift_use_dnsmasq=true
+os_firewall_use_firewalld=true
+openshift_enable_service_catalog=false
+openshift_master_dynamic_provisioning_enabled=true
+ansible_service_broker_install=false
+osm_use_cockpit=false
+openshift_release='v3.11' 
+
+openshift_master_default_subdomain='apps.cc-openshift.de'
+openshift_master_cluster_hostname='internal-master.cc-openshift.de'
+openshift_master_cluster_public_hostname='master.cc-openshift.de'
+openshift_master_cluster_method=native
+os_sdn_network_plugin_name='redhat/openshift-ovs-networkpolicy'
+
+# Certificates
+openshift_hosted_registry_cert_expire_days=730
+openshift_ca_cert_expire_days=1825
+openshift_node_cert_expire_days=730
+openshift_master_cert_expire_days=730
+etcd_ca_default_days=1825
+
+# Logging
+openshift_logging_install_logging=true
+openshift_logging_es_nodeselector={"node-role.kubernetes.io/infra":"true"}
+openshift_logging_elasticsearch_storage_type=pvc
+openshift_logging_es_pvc_storage_class_name=glusterfs-storage-block
+openshift_logging_storage_volume_size=25Gi
+openshift_logging_es_memory_limit=4Gi
+
+# Metrics
+openshift_metrics_install_metrics=true
+openshift_metrics_cassandra_storage_type=pv
+openshift_metrics_cassandra_pvc_storage_class_name=glusterfs-storage-block
+openshift_metrics_storage_volume_size=10Gi
+
+# Monitoring
+openshift_cluster_monitoring_operator_install=true
+openshift_cluster_monitoring_operator_prometheus_storage_enabled=true
+openshift_cluster_monitoring_operator_prometheus_storage_capacity=10Gi
+openshift_cluster_monitoring_operator_prometheus_storage_class_name=glusterfs-storage
+openshift_cluster_monitoring_operator_alertmanager_storage_enabled=true
+openshift_cluster_monitoring_operator_alertmanager_storage_capacity=1Gi
+openshift_cluster_monitoring_operator_alertmanager_storage_class_name=glusterfs-storage
+
+
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+openshift_master_htpasswd_users={'admin': '$2y$05$LZWZ60dO0Vt1p/WJGLhsoOw2Bl.QZg.CRyc8KVzf5ex42hJbpw7Se'}
+
+openshift_disable_check=docker_storage,memory_availability
+
+# Storage config
+openshift_storage_glusterfs_storageclass=true
+openshift_storage_glusterfs_storageclass_default=true
+openshift_storage_glusterfs_block_deploy=true
+openshift_storage_glusterfs_block_storageclass=true
+openshift_storage_glusterfs_block_storageclass_default=false
+openshift_storage_glusterfs_block_host_vol_size=100
+openshift_storage_glusterfs_block_host_vol_create=true
+openshift_storage_glusterfs_heketi_admin_key=snSvtK7f6ZY6tcJUavzHW9CxG8RH2Ahe
+
+[glusterfs]
+app0.cc-openshift.de glusterfs_zone=1 glusterfs_devices='[ "/dev/nvme1n1" ]'
+app1.cc-openshift.de glusterfs_zone=2 glusterfs_devices='[ "/dev/nvme1n1" ]'
+app2.cc-openshift.de glusterfs_zone=3 glusterfs_devices='[ "/dev/nvme1n1" ]'
+app3.cc-openshift.de glusterfs_zone=1 glusterfs_devices='[ "/dev/nvme1n1" ]'
+app4.cc-openshift.de glusterfs_zone=2 glusterfs_devices='[ "/dev/nvme1n1" ]'
+app5.cc-openshift.de glusterfs_zone=3 glusterfs_devices='[ "/dev/nvme1n1" ]'
+
+[masters]
+master0.cc-openshift.de openshift_node_group_name='node-config-master' openshift_schedulable=true
+
+[etcd]
+master0.cc-openshift.de
+
+[nodes]
+app[0:5].cc-openshift.de openshift_node_group_name='node-config-compute' openshift_schedulable=true
+master0.cc-openshift.de openshift_node_group_name='node-config-master' openshift_schedulable=true
+infra0.cc-openshift.de openshift_node_group_name='node-config-infra' openshift_schedulable=true
