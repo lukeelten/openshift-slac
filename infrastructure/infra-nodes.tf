@@ -6,7 +6,7 @@ resource "aws_instance" "infra-node" {
   key_name        = "${var.Key}"
   user_data       = "${file("assets/init.sh")}"
   vpc_security_group_ids = ["${aws_security_group.nodes-sg.id}", "${aws_security_group.infra-sg.id}"]
-  subnet_id = "${aws_subnet.subnets-private.*.id[(count.index % aws_subnet.subnets-private.count)]}"
+  subnet_id = "${aws_subnet.subnets-public.*.id[(count.index % aws_subnet.subnets-public.count)]}"
 
   count = "${var.Counts["Infra"]}"
 
@@ -24,21 +24,3 @@ resource "aws_instance" "infra-node" {
     Name = "Infrastructure Node ${count.index + 1}"
   }
 }
-
-resource "aws_lb_target_group_attachment" "infra-lb-http" {
-  target_group_arn = "${aws_lb_target_group.external-tg-http.arn}"
-  target_id        = "${aws_instance.infra-node.*.id[count.index]}"
-  port             = "${aws_lb_target_group.external-tg-http.port}"
-
-  count = "${var.Counts["Infra"]}"
-}
-
-
-resource "aws_lb_target_group_attachment" "infra-lb-https" {
-  target_group_arn = "${aws_lb_target_group.external-tg-https.arn}"
-  target_id        = "${aws_instance.infra-node.*.id[count.index]}"
-  port             = "${aws_lb_target_group.external-tg-https.port}"
-
-  count = "${var.Counts["Infra"]}"
-}
-

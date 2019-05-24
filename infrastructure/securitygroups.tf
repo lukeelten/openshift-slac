@@ -1,6 +1,6 @@
 resource "aws_security_group" "bastion-sg" {
   description = "Security Group for Bastion server"
-  name        = "openshiftbastion-sg"
+  name        = "openshift-bastion-sg"
   vpc_id      = "${aws_vpc.vpc.id}"
 
   ingress = [
@@ -8,12 +8,6 @@ resource "aws_security_group" "bastion-sg" {
       from_port        = 22
       to_port          = 22
       protocol         = "tcp"
-      cidr_blocks      = ["0.0.0.0/0"]
-    },
-    {
-      from_port        = "-1"
-      to_port          = "-1"
-      protocol         = "icmp"
       cidr_blocks      = ["0.0.0.0/0"]
     }
   ]
@@ -32,15 +26,14 @@ resource "aws_security_group" "bastion-sg" {
 
 resource "aws_security_group" "master-sg" {
   description = "Security Group for Master Nodes"
-  name        = "openshiftmaster-sg"
+  name        = "openshift-master-sg"
   vpc_id      = "${aws_vpc.vpc.id}"
 
   ingress = [
     {
       from_port        = 8443
-      to_port          = 8443
+      to_port          = 8444
       protocol         = "tcp"
-      // Should be restricted to master load balancer, but network lbs does not have security groups
       cidr_blocks      = ["0.0.0.0/0"]
     }
   ]
@@ -59,7 +52,7 @@ resource "aws_security_group" "master-sg" {
 
 resource "aws_security_group" "infra-sg" {
   description = "Security Group for Infrastructure Nodes"
-  name        = "openshiftinfra-sg"
+  name        = "openshift-infra-sg"
   vpc_id      = "${aws_vpc.vpc.id}"
 
   ingress = [
@@ -67,15 +60,19 @@ resource "aws_security_group" "infra-sg" {
       from_port        = 80
       to_port          = 80
       protocol         = "tcp"
-      // Should be restricted to router lb
       cidr_blocks      = ["0.0.0.0/0"]
     },
     {
       from_port        = 443
       to_port          = 443
       protocol         = "tcp"
-      // Should be restricted to router lb
       cidr_blocks      = ["0.0.0.0/0"]
+    },
+    {
+      from_port        = 1936
+      to_port          = 1936
+      protocol         = "tcp"
+      self             = true
     }
   ]
 
@@ -93,7 +90,7 @@ resource "aws_security_group" "infra-sg" {
 
 resource "aws_security_group" "nodes-sg" {
   description = "Security Group for Nodes"
-  name        = "openshiftnodes-sg"
+  name        = "openshift-nodes-sg"
   vpc_id      = "${aws_vpc.vpc.id}"
 
   ingress = [
@@ -101,25 +98,19 @@ resource "aws_security_group" "nodes-sg" {
       from_port        = 22
       to_port          = 22
       protocol         = "tcp"
-      cidr_blocks      = ["0.0.0.0/0"]
+      security_groups = ["${aws_security_group.bastion-sg.id}"]
     },
     {
-      from_port        = 1
-      to_port          = 65535
-      protocol         = "tcp"
-      self             = true
-    },
-    {
-      from_port        = 1
-      to_port          = 65535
-      protocol         = "udp"
+      from_port        = 0
+      to_port          = 0
+      protocol         = "-1"
       self             = true
     },
     {
       from_port        = "-1"
       to_port          = "-1"
       protocol         = "icmp"
-      cidr_blocks      = ["0.0.0.0/0"]
+      cidr_blocks      = ["10.0.0.0/16"]
     }
   ]
 

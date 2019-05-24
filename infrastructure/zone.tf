@@ -2,48 +2,37 @@
 resource "aws_route53_record" "router-record" {
   zone_id = "${data.aws_route53_zone.existing-zone.zone_id}"
   name    = "*.apps.${data.aws_route53_zone.existing-zone.name}"
-  type = "A"
+  type = "CNAME"
 
-  alias {
-    name = "${aws_lb.external-lb.dns_name}"
-    evaluate_target_health = false
-    zone_id = "${aws_lb.external-lb.zone_id}"
-  }
+  ttl = "300"
+  records = ["${aws_instance.infra-node.*.public_dns[0]}"]
 }
 
 resource "aws_route53_record" "master-record" {
   zone_id = "${data.aws_route53_zone.existing-zone.zone_id}"
   name    = "master.${data.aws_route53_zone.existing-zone.name}"
-  type = "A"
+  type = "CNAME"
 
-  alias {
-    name = "${aws_lb.external-lb.dns_name}"
-    evaluate_target_health = false
-    zone_id = "${aws_lb.external-lb.zone_id}"
-  }
+  ttl = "300"
+  records = ["${aws_instance.master-node.*.public_dns[0]}"]
 }
 
 resource "aws_route53_record" "internal-api-record" {
   zone_id = "${data.aws_route53_zone.existing-zone.zone_id}"
   name    = "internal-master.${data.aws_route53_zone.existing-zone.name}"
-  type = "A"
+  type = "CNAME"
 
-  count = "${aws_lb.internal-lb.count}"
-
-  alias {
-    name = "${aws_lb.internal-lb.dns_name}"
-    evaluate_target_health = false
-    zone_id = "${aws_lb.internal-lb.zone_id}"
-  }
+  ttl = "300"
+  records = ["${aws_instance.master-node.*.private_dns[0]}"]
 }
 
 resource "aws_route53_record" "bastion-record" {
   zone_id = "${data.aws_route53_zone.existing-zone.zone_id}"
   name    = "bastion.${data.aws_route53_zone.existing-zone.name}"
-  type = "A"
+  type = "CNAME"
 
   ttl = "300"
-  records = ["${aws_instance.bastion.public_ip}"]
+  records = ["${aws_instance.bastion.public_dns}"]
 }
 
 resource "aws_route53_record" "app-records" {

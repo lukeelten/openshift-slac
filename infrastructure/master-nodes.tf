@@ -7,7 +7,7 @@ resource "aws_instance" "master-node" {
   user_data       = "${file("assets/init.sh")}"
 
   vpc_security_group_ids = ["${aws_security_group.nodes-sg.id}", "${aws_security_group.master-sg.id}"]
-  subnet_id = "${aws_subnet.subnets-private.*.id[(count.index % aws_subnet.subnets-private.count)]}"
+  subnet_id = "${aws_subnet.subnets-public.*.id[(count.index % aws_subnet.subnets-public.count)]}"
 
   count = "${var.Counts["Master"]}"
 
@@ -24,20 +24,4 @@ resource "aws_instance" "master-node" {
     Type = "master"
     Name = "Master Node ${count.index + 1}"
   }
-}
-
-resource "aws_lb_target_group_attachment" "master-to-master-lb" {
-  target_group_arn = "${aws_lb_target_group.external-tg-master.arn}"
-  target_id        = "${aws_instance.master-node.*.id[count.index]}"
-  port             = 8443
-
-  count = "${var.Counts["Master"]}"
-}
-
-resource "aws_lb_target_group_attachment" "master-to-internal-lb" {
-  target_group_arn = "${aws_lb_target_group.internal-lb-master.arn}"
-  target_id        = "${aws_instance.master-node.*.id[count.index]}"
-  port             = 8443
-
-  count = "${var.Counts["Master"]}"
 }

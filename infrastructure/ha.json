@@ -7,7 +7,7 @@
   "Types":{
     "Bastion":"t3.medium",
     "Master":"m5a.xlarge",
-    "Infra":"m5a.large",
+    "Infra":"m5a.2xlarge",
     "App":"m5a.large"
   }
 }
