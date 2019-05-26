@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: php-example
+  name: php-example
+spec:
+  host: php-example-slac.apps.cc-openshift.de
+  port:
+    targetPort: 8080-tcp
+  to:
+    kind: Service
+    name: php-example
+    weight: 100
+  wildcardPolicy: None
