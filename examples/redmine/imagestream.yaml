@@ -1,0 +1,18 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: redmine
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+  - annotations: null
+    from:
+      kind: DockerImage
+      name: docker.io/redmine
+    generation: 1
+    importPolicy:
+      scheduled: true
+    name: latest
+    referencePolicy:
+      type: Source

@@ -1,0 +1,18 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: redmine
+  name: redmine
+spec:
+  host: redmine-slac.apps.cc-openshift.de
+  port:
+    targetPort: 3000-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: redmine
+    weight: 100
+  wildcardPolicy: None
